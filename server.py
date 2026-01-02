@@ -1,61 +1,60 @@
 import os
 import sys
-from flask import Flask, request, jsonify
+# Consolidate imports (removed duplicates)
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 
-# --- Import RAG Components ---
-try:
-    from dataprep import VectorStoreManager, EmbeddingManager
-    from llmrag import RAGRetrieval, RAGGenerator, ChatGroq
-except ImportError as e:
-    print("\n❌ CRITICAL ERROR: Missing 'dataprep.py' or 'llmrag.py'.")
-    print(f"Detail: {e}")
-    sys.exit(1)
-
-# Import your checker modules
-import newschecker
-import vediochecker
-
-# Initialize Flask App
+# --- 1. INITIALIZE FLASK APP (DO THIS ONLY ONCE) ---
 app = Flask(__name__)
 CORS(app)
 
-# Load Environment Variables
+# --- 2. LOAD ENVIRONMENT VARIABLES ---
 if load_dotenv(find_dotenv()):
     print("✅ API Key loaded from .env")
 elif load_dotenv("1.env"):
     print("✅ API Key loaded from 1.env")
 
-# --- Initialize Global RAG System ---
+# --- 3. SETUP RAG COMPONENTS ---
+try:
+    from dataprep import VectorStoreManager, EmbeddingManager
+    from llmrag import RAGRetrieval, RAGGenerator, ChatGroq
+    import newschecker
+    import vediochecker
+except ImportError as e:
+    print(f"\n❌ CRITICAL ERROR: Missing modules. Detail: {e}")
+    sys.exit(1)
+
 print("🚀 Booting up RAG Server...")
 api_key = os.getenv("GROQ_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
     print("❌ ERROR: API Key missing. Please check your .env file.")
 
-# 1. Setup Embedding & Vector Store
+# Initialize RAG Objects
 embedding_manager = EmbeddingManager()
 vector_store = VectorStoreManager(
     collection_name="pdf_documents", 
     embedding_manager=embedding_manager
 )
-
-# 2. Setup Retriever & LLM
 rag_retriever = RAGRetrieval(vector_store, embedding_manager)
 rag_generator = RAGGenerator(api_key=api_key)
 llm_engine = ChatGroq(api_key=api_key, model="llama-3.1-8b-instant", temperature=0)
 
 print("✅ Server System Ready on Port 5000!")
 
-# --- API ENDPOINTS ---
+# --- 4. ROUTES ---
+
+# This route was getting deleted in your previous code
+@app.route('/')
+def home():
+    return render_template('index.html') 
 
 @app.route('/api/fact-check', methods=['POST'])
 def fact_check():
-    """Simple Q&A style fact check with Mandatory Category"""
     data = request.json
     user_query = data.get('query')
-    category = data.get('category', 'General') # Retrieve category
+    category = data.get('category', 'General')
     
     if not user_query:
         return jsonify({"error": "No query provided"}), 400
@@ -64,7 +63,6 @@ def fact_check():
 
     try:
         docs = rag_retriever.retrieve(user_query, top_k=5)
-        # Pass category to generator
         answer = rag_generator.generate_stream(user_query, docs, category=category)
         return jsonify({
             "answer": answer, 
@@ -76,10 +74,9 @@ def fact_check():
 
 @app.route('/api/verify-video', methods=['POST'])
 def verify_video():
-    """YouTube Video Verification with Mandatory Mode"""
     data = request.json
     video_url = data.get('url')
-    mode = data.get('mode', 'Factual Accuracy Check') # Retrieve Mode
+    mode = data.get('mode', 'Factual Accuracy Check')
     
     if not video_url:
         return jsonify({"error": "No URL provided"}), 400
@@ -92,7 +89,7 @@ def verify_video():
             languages=['hi', 'en'], 
             retriever=rag_retriever, 
             llm=llm_engine,
-            mode=mode # Pass mode
+            mode=mode
         )
         return jsonify({"result": summary})
     except Exception as e:
@@ -101,7 +98,6 @@ def verify_video():
 
 @app.route('/api/verify-news', methods=['POST'])
 def verify_news():
-    """News Article Verification Endpoint"""
     data = request.json
     news_url = data.get('url')
     filter_mode = data.get('filter_type', 'Factual Accuracy') 
@@ -114,7 +110,7 @@ def verify_news():
     try:
         content = newschecker.extract_news_content(news_url)
         if not content:
-            return jsonify({"error": "Could not extract content from URL. Site might be blocking bots."}), 400
+            return jsonify({"error": "Could not extract content."}), 400
         
         lang = newschecker.detect_language_of_text(content)
         if lang and lang.startswith('hi'):
@@ -122,10 +118,9 @@ def verify_news():
             
         claims = newschecker.extract_claims(content)
         if not claims:
-            return jsonify({"result": "No verifiable claims found in the article."})
+            return jsonify({"result": "No verifiable claims found."})
 
         top_claims = claims[:5] 
-        
         results = newschecker.verify_claims(
             top_claims, 
             retriever=rag_retriever, 
@@ -140,5 +135,6 @@ def verify_news():
         print(f"News Check Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+# --- 5. START SERVER ---
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
