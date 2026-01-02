@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One Nation, One Election | Hack4Delhi Edition</title>
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================= THEME VARIABLES ================= */
+    :root {
+      /* WARM THEME PALETTE */
+      --gov-blue: #003060;     
+      --gov-saffron: #FF9933; 
+      --gov-green: #138808;   
+      
+      /* New Warm Variables */
+      --warm-rust: #9c4221;
+      --warm-gold: #d97706;
+      --warm-cream: #fffaf5;
+      --warm-border: #fed7aa;
+      
+      --text-main: #292524; /* Warm Charcoal */
+      --text-muted: #57534e; /* Stone Gray */
+      
+      --bg-light: #fefce8;
+      --white: #ffffff;
+      
+      --shadow-soft: 0 10px 40px -10px rgba(124, 45, 18, 0.08); /* Warm shadow */
+      --gradient-text: linear-gradient(135deg, #9c4221 0%, #d97706 50%, #656d4a 100%);
+    }
+
+    /* ================= RESET & UTILITIES ================= */
+    * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      background-color: #fffbf7;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Class applied via JS when switching to Hindi */
+    body.hindi-mode {
+      font-family: 'Tiro Devanagari Hindi', serif; 
+    }
+    body.hindi-mode h1, body.hindi-mode h2, body.hindi-mode h3 {
+      font-family: 'Tiro Devanagari Hindi', serif;
+      font-weight: 700;
+    }
+
+    /* Animation Classes */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ================= GOV TOP STRIP ================= */
+    .gov-strip {
+      background: #f5f0eb;
+      border-bottom: 1px solid #e7e5e4;
+      font-size: 0.85rem;
+      padding: 8px 0;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+    .strip-flex { display: flex; justify-content: space-between; align-items: center; }
+
+    .gov-links {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .gov-links span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: color 0.2s;
+    }
+    .gov-links span:hover { color: var(--warm-rust); }
+    
+    /* --- FIXED LANGUAGE DROPDOWN STYLES --- */
+    .lang-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .lang-btn {
+      color: var(--warm-rust);
+      font-weight: 700;
+      border: 1px solid var(--warm-rust);
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    
+    .lang-btn:hover, .lang-btn.active {
+      background: var(--warm-rust);
+      color: white;
+    }
+
+    .lang-dropdown {
+      display: none; /* Hidden by default */
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background-color: white;
+      min-width: 120px;
+      box-shadow: 0 8px 20px rgba(124, 45, 18, 0.15);
+      border-radius: 8px;
+      border: 1px solid #fed7aa;
+      z-index: 2000;
+      padding: 5px 0;
+      animation: fadeIn 0.2s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Toggle Class */
+    .lang-dropdown.show { display: block; }
+    
+    .lang-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .lang-option:hover {
+      background-color: #fffaf5;
+      color: var(--warm-rust);
+    }
+
+
+    /* ================= OFFICIAL HEADER ================= */
+    header {
+      background: rgba(255, 251, 247, 0.95); 
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(156, 66, 33, 0.1);
+      box-shadow: 0 4px 20px rgba(124, 45, 18, 0.03);
+      padding: 1rem 0;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .emblem-img { height: 60px; width: auto; }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.2;
+    }
+
+    .brand-text h2 {
+      font-family: 'Tiro Devanagari Hindi', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .brand-text h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--warm-rust);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .brand-text h2 { font-size: 1.2rem; }
+      .brand-text h1 { font-size: 1rem; }
+      .emblem-img { height: 45px; }
+      .gov-strip { font-size: 0.7rem; }
+    }
+
+    /* ================= HERO SECTION ================= */
+    .hero {
+      position: relative;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 4rem 0;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+      opacity: 0.4;
+      animation: float 10s infinite ease-in-out;
+    }
+    .blob-1 { top: -10%; right: -10%; width: 500px; height: 500px; background: #ffedd5; }
+    .blob-2 { bottom: -10%; left: -10%; width: 400px; height: 400px; background: #fecaca; }
+    .blob-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: #fef9c3; }
+
+    @keyframes float {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(20px, 40px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: white;
+      border: 1px solid #fed7aa;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--warm-rust);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 10px rgba(156, 66, 33, 0.05);
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      color: #431407;
+    }
+    
+    .gradient-text {
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 90%;
+    }
+
+    .hero-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.9);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -10px; right: -10px;
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, #fb923c, #ea580c);
+      border-radius: 50%;
+      z-index: -1;
+      opacity: 0.8;
+    }
+    
+    /* PDF Link Styles */
+    .pdf-link:hover {
+        background: #fff7ed !important;
+        border-color: var(--warm-rust) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(156, 66, 33, 0.1);
+    }
+
+    /* === DELHI IMPACT CARD STYLES === */
+    .delhi-impact-box {
+        background: linear-gradient(to right, #fff1f2, #fff);
+        border-left: 4px solid #be123c;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 10px rgba(190, 18, 60, 0.05);
+        border: 1px solid #ffe4e6;
+    }
+    .delhi-impact-title {
+        font-size: 0.85rem;
+        color: #9f1239;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .delhi-stat {
+        font-size: 0.9rem;
+        color: #881337;
+        line-height: 1.4;
+    }
+    
+    /* === DELHI TIMELINE VISUAL === */
+    .delhi-timeline-wrapper {
+        margin-top: 1rem;
+        padding-top: 1rem; 
+        border-top: 1px dashed #e7e5e4;
+    }
+    .timeline-label {
+        font-size: 0.75rem; 
+        color: #78716c; 
+        font-weight: 600; 
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .timeline-container {
+        display: flex; 
+        justify-content: space-between; 
+        font-size: 0.65rem; /* Slightly smaller to fit all 5 items */
+        color: #57534e;
+    }
+    .timeline-point {
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .timeline-dot {
+        width: 8px; 
+        height: 8px; 
+        border-radius: 50%; 
+        margin: 0 auto 4px;
+    }
+    .timeline-line {
+        flex: 1; 
+        height: 1px; 
+        background: #d6d3d1; 
+        margin-top: 4px;
+        min-width: 10px;
+    }
+
+    /* === QUICK ACTION BUTTONS === */
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.8rem 1.5rem;
+      background: white;
+      border: 1px solid #e7e5e4;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      border-color: var(--warm-rust);
+    }
+    .action-btn.primary-btn {
+      background: var(--warm-rust);
+      color: white;
+      border-color: var(--warm-rust);
+    }
+    .action-btn.primary-btn:hover { background: #7c2d12; border-color: #7c2d12; }
+    .action-btn.video-btn { border-left: 4px solid #be123c; }
+    .action-btn.news-btn { border-left: 4px solid #15803d; }
+
+
+    /* ================= FACT CHECKER / VIDEO / NEWS STYLES ================= */
+    .fc-section-wrapper {
+        margin-bottom: 3rem;
+        position: relative;
+        padding-top: 6rem;
+        margin-top: -6rem;
+    }
+
+    .fc-box {
+      background: #fffaf5;
+      background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+      background-size: 20px 20px;
+      border: 1px solid rgba(254, 215, 170, 0.6);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 
+        0 20px 50px -12px rgba(124, 45, 18, 0.1), 
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fc-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #d97706, #9c4221, #656d4a);
+    }
+
+    .fc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(120, 53, 15, 0.1);
+      padding-bottom: 1.5rem;
+    }
+
+    .fc-title-group h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      color: #292524;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-badge {
+      font-size: 0.75rem;
+      background: linear-gradient(135deg, #b45309, #d97706);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+    }
+    .video-badge {
+      background: linear-gradient(135deg, #be123c, #e11d48);
+      box-shadow: 0 4px 10px rgba(190, 18, 60, 0.2);
+    }
+    .news-badge {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2);
+    }
+
+    .fc-subtitle {
+      color: #78716c;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .fc-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #656d4a;
+      background: rgba(101, 109, 74, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      background: #656d4a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(101, 109, 74, 0.2);
+      animation: pulse-warm 2s infinite;
+    }
+
+    .fc-interface { display: flex; gap: 2rem; align-items: stretch; }
+    .fc-input-area { flex: 1; position: relative; display: flex; flex-direction: column; gap: 1rem; }
+    
+    .fc-textarea, .fc-input {
+      width: 100%;
+      padding: 1.2rem;
+      border: 1px solid #e7e5e4;
+      border-radius: 12px;
+      background: #ffffff;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+    }
+    .fc-textarea { height: 200px; resize: none; line-height: 1.6; padding: 1.5rem; }
+    
+    .fc-textarea:focus, .fc-input:focus {
+      outline: none;
+      border-color: var(--warm-gold);
+      box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* === QUICK PROMPT STYLES === */
+    .quick-prompts {
+      font-size: 0.85rem;
+      color: #78716c;
+      margin-top: -5px;
+    }
+    .prompt-chip {
+      display: inline-block;
+      margin-left: 5px;
+      background: #fecaca;
+      color: #9f1239;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #fda4af;
+      transition: all 0.2s;
+    }
+    .prompt-chip:hover {
+      background: #f43f5e;
+      color: white;
+      transform: translateY(-1px);
+    }
+    
+    .visual-placeholder {
+      flex: 1;
+      background: rgba(231, 229, 228, 0.4);
+      border: 2px dashed #d6d3d1;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #a8a29e;
+      min-height: 150px;
+    }
+
+    .fc-controls {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.5rem;
+      background: #fffcf8; 
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #f5f5f4;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #78350f;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .fc-select-wrapper { position: relative; }
+    .fc-select {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid #e7e5e4;
+      border-radius: 8px;
+      background: white;
+      color: #44403c;
+      font-size: 0.95rem;
+      font-weight: 500;
+      appearance: none;
+      cursor: pointer;
+    }
+    .fc-select-wrapper::after {
+      content: '▼';
+      font-size: 0.7rem;
+      color: #a8a29e;
+      position: absolute;
+      right: 1rem; top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .fc-btn-verify {
+      width: 100%;
+      padding: 1.1rem;
+      background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(194, 65, 12, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .fc-btn-verify.video-btn { background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%); box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3); }
+    .fc-btn-verify.news-btn { background: linear-gradient(135deg, #15803d 0%, #16a34a 100%); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
+
+    .fc-btn-verify::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: 0.5s;
+    }
+    .fc-btn-verify:hover { transform: translateY(-2px); }
+    .fc-btn-verify:hover::after { left: 100%; }
+
+    /* ================= BENEFITS CARDS ================= */
+    .section-padding { padding: 6rem 0; }
+    .section-title { text-align: center; margin-bottom: 4rem; }
+    .section-title h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--warm-rust); margin-bottom: 0.5rem; }
+    .divider { width: 80px; height: 4px; background: linear-gradient(to right, #d97706, #656d4a); margin: 0 auto; border-radius: 2px; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+    .glass-card {
+      background: white; padding: 2.5rem; border-radius: 16px; border: 1px solid #f3f0ea;
+      transition: all 0.4s ease; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .glass-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(124, 45, 18, 0.1); border-color: var(--warm-gold); }
+    .icon-circle {
+      width: 50px; height: 50px; background: #fff7ed; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; color: var(--warm-rust); margin-bottom: 1.5rem; transition: 0.3s;
+    }
+    .glass-card:hover .icon-circle { background: var(--warm-rust); color: white; }
+    
+    /* === VIDEO FACADE (THUMBNAIL) STYLES === */
+    .video-responsive {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        background: #000;
+        cursor: pointer; /* Indicates it's clickable */
+    }
+    .video-responsive iframe, .video-responsive img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    /* Play Button Overlay */
+    .play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        border: 2px solid white;
+    }
+    .play-button::before {
+        content: '';
+        border-style: solid;
+        border-width: 10px 0 10px 20px;
+        border-color: transparent transparent transparent white;
+        margin-left: 4px;
+    }
+    .video-responsive:hover .play-button {
+        background: #be123c; /* Red color on hover */
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* ABOUT US SPECIFIC STYLES */
+    .about-content p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      text-align: justify;
+    }
+
+    /* ================= FOOTER ================= */
+    footer { background: #292524; color: #a8a29e; padding: 4rem 0 2rem; font-size: 0.9rem; }
+    .footer-bottom { border-top: 1px solid #44403c; padding-top: 2rem; margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; }
+
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero-title { font-size: 2.5rem; }
+      .nav-container { flex-direction: column; gap: 1rem; }
+      .fc-interface { flex-direction: column; }
+      .fc-controls { width: 100%; }
+      .hero-actions { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="gov-strip">
+  <div class="container strip-flex">
+    <span data-i18n="gov-india">भारत सरकार | GOVERNMENT OF INDIA</span>
+    <div class="gov-links">
+      <span><i data-lucide="search" size="14"></i></span>
+      <span><i data-lucide="type" size="14"></i> Tt</span>
+      <span><i data-lucide="sitemap" size="14"></i></span>
+      
+      <div class="lang-wrapper">
+        <button class="lang-btn" id="lang-toggle-btn">
+          Language <i data-lucide="chevron-down" size="14"></i>
+        </button>
+        <div class="lang-dropdown" id="lang-dropdown-menu">
+          <span class="lang-option" onclick="changeLanguage('en')">English</span>
+          <span class="lang-option" onclick="changeLanguage('hi')">हिन्दी</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="container nav-container">
+    <div class="brand-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Satyameva Jayate" class="emblem-img">
+      <div class="brand-text">
+        <h2>एक देश एक चुनाव</h2>
+        <h1 data-i18n="brand-title">ONE NATION ONE ELECTION</h1>
+        <span style="font-size:0.75rem; color:#9c4221; font-weight:700; letter-spacing:1px; text-transform:uppercase;" data-i18n="official-portal">Official Portal</span>
+      </div>
+    </div>
+    <div class="brand-right"></div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="container hero-grid">
+    <div class="hero-content fade-in-up">
+      <div class="hero-badge" data-i18n="hero-badge">High Level Committee Report 2025</div>
+      
+      <h2 class="hero-title" data-i18n="hero-title">
+        Synchronising<br>
+        <span class="gradient-text">India's Democracy</span>
+      </h2>
+      
+      <p class="hero-desc" data-i18n="hero-desc">
+        A historic reform to conduct simultaneous elections for Lok Sabha and State Assemblies. Ensuring stability, saving resources, and focusing on governance.
+      </p>
+      
+      <div class="hero-actions">
+          <a href="#fact-check" class="action-btn primary-btn" data-i18n="btn-fact">
+             <i data-lucide="sparkles" size="18"></i> Fact Check
+          </a>
+          <a href="#video-auth" class="action-btn video-btn" data-i18n="btn-video">
+             <i data-lucide="mic" size="18" color="#be123c"></i> Video Claims
+          </a>
+          <a href="#news-auth" class="action-btn news-btn" data-i18n="btn-news">
+             <i data-lucide="newspaper" size="18" color="#15803d"></i> News Checker
+          </a>
+      </div>
+    </div>
+
+    <div class="hero-card fade-in-up" style="animation-delay: 0.2s;">
+      <h3 data-i18n="impact-title" style="font-family:'Playfair Display'; color: #7c2d12; margin-bottom: 1.2rem; border-bottom: 1px solid #e7e5e4; padding-bottom: 10px;">
+        Projected Impact
+      </h3>
+      
+      <div style="margin-bottom: 1.2rem;">
+        <div style="display:flex; justify-content:space-between; align-items: flex-end; margin-bottom: 0.2rem;">
+          <span data-i18n="impact-gdp" style="font-size:0.9rem; color:#78716c; font-weight:500;">Real GDP Growth</span>
+          <span data-i18n="val-gdp" style="font-size:1.4rem; font-weight:800; color:#15803d;">+1.5%</span>
+        </div>
+        <p data-i18n="desc-gdp" style="font-size: 0.8rem; color: #a8a29e; line-height: 1.4;">
+          Estimates suggest a 1.5% boost to GDP by minimizing policy paralysis periods.
+        </p>
+      </div>
+
+      <div style="margin-bottom: 1.2rem;">
+        <div style="display:flex; justify-content:space-between; align-items: flex-end; margin-bottom: 0.2rem;">
+          <span data-i18n="impact-eco" style="font-size:0.9rem; color:#78716c; font-weight:500;">Economic Value Add</span>
+          <span data-i18n="val-eco" style="font-size:1.2rem; font-weight:800; color:#9c4221;">₹4.5 Lakh Cr</span>
+        </div>
+        <div style="width:100%; height:6px; background:#f5f5f4; border-radius:10px; margin-top:5px;">
+          <div style="width:85%; height:100%; background: linear-gradient(90deg, #9c4221, #d97706); border-radius:10px;"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span data-i18n="impact-voter" style="font-size:0.9rem; color:#78716c; font-weight:500;">Voter Turnout</span>
+          <span data-i18n="val-voter" style="font-size:0.9rem; font-weight:700; color:#003060; background:#e0f2fe; padding:2px 8px; border-radius:4px;">High Confidence</span>
+        </div>
+        <p data-i18n="desc-voter" style="font-size: 0.8rem; color: #a8a29e; line-height: 1.4;">
+          Reduces "Voter Fatigue," historically increasing participation in simultaneous cycles.
+        </p>
+      </div>
+
+      <div class="delhi-impact-box">
+          <div class="delhi-impact-title">
+            <i data-lucide="map-pin" size="14"></i> Delhi NCT Focus
+          </div>
+          <p class="delhi-stat">
+            Aligning MCD, Assembly & LS polls could save ~4 months of 'Model Code of Conduct' pauses per cycle.
+          </p>
+      </div>
+
+      <div class="delhi-timeline-wrapper">
+        <span class="timeline-label">Delhi's Recent Cycle (Status Quo)</span>
+        <div class="timeline-container">
+            <div class="timeline-point">
+            <div class="timeline-dot" style="background: #9c4221;"></div>
+            2019<br>(Lok Sabha)
+            </div>
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-point">
+            <div class="timeline-dot" style="background: #d97706;"></div>
+            2020<br>(Assembly)
+            </div>
+            <div class="timeline-line"></div>
+            
+            <div class="timeline-point">
+            <div class="timeline-dot" style="background: #656d4a;"></div>
+            2022<br>(MCD)
+            </div>
+            <div class="timeline-line"></div>
+
+            <div class="timeline-point">
+            <div class="timeline-dot" style="background: #9c4221;"></div>
+            2024<br>(Lok Sabha)
+            </div>
+            <div class="timeline-line"></div>
+
+            <div class="timeline-point">
+            <div class="timeline-dot" style="background: #d97706;"></div>
+            2025<br>(Assembly)
+            </div>
+        </div>
+      </div>
+      
+      <div style="font-size: 0.75rem; color: #a8a29e; margin-top: 1.5rem; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; border-top: 1px dashed #d6d3d1; padding-top: 10px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <i data-lucide="file-check" size="14"></i> 
+          <span data-i18n="source-hlc">Source: HLC Report (Kovind Panel) & NITI Aayog</span>
+        </div>
+        
+        <a href="https://onoe.gov.in/HLC-Report-en" target="_blank" class="pdf-link" style="display:flex; align-items:center; gap:4px; color:var(--warm-rust); text-decoration:none; font-weight:600; padding:4px 8px; background:#fff7ed; border-radius:4px; border:1px solid #fed7aa; transition:all 0.2s;">
+          <i data-lucide="file-text" size="14"></i>
+          <span data-i18n="btn-pdf">View PDF</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding" id="about-us" style="padding-top: 2rem;">
+  <div class="container">
+    <div class="glass-card fade-in-up">
+      <div class="section-title" style="margin-bottom: 2rem; text-align: left;">
+        <h2 data-i18n="about-title" style="color: var(--warm-rust); margin-bottom: 0.5rem;">About Us</h2>
+        <div class="divider" style="margin: 0; width: 60px;"></div>
+      </div>
+      
+      <div class="about-content">
+        <p data-i18n="about-p1">
+          Elections to the House of the People and Legislative Assemblies of States were mostly held simultaneously from 1951-52 to 1967 after which this cycle got broken and now, elections are held almost every year and within a year too at different times, which result in massive expenditure by the Government and other stakeholders, diversion of security forces and other electoral officers engaged in such elections from their primary duties for significantly prolonged periods, disruption in developmental work on account of prolonged application of Model Code of Conduct, etc.
+        </p>
+        <p data-i18n="about-p2">
+          The Law Commission of India in its 170th Report on Reforms of the Electoral Laws observed that: “This cycle of elections every year, and in the out of season, should be put an end to. We must go back to the situation where the elections to Lok Sabha and all the Legislative Assemblies are held at once. It is true that we cannot conceive or provide for all the situations and eventualities that may arise whether on account of the use of Article 356 (which of course has come down substantially after the decision of Supreme Court in S.R. Bommai vs Union of India) or for other reasons, yet the holding of a separate election to a Legislative Assembly should be an exception and not the rule. The rule ought to be ‘one election once in five years for Lok Sabha and all the Legislative Assemblies.
+        </p>
+        <p data-i18n="about-p3">
+          The Department-related Parliamentary Standing Committee on Personnel, Public Grievances, Law and Justice in its 79th Report on ‘Feasibility of Holding Simultaneous Election to the House of People (Lok Sabha) and State Legislative Assemblies’ submitted in December, 2015 has also examined the matter and recommended an alternative and practical method of holding simultaneous elections in two phases.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding" id="benefits">
+  <div class="container">
+    
+    <div id="fact-check" class="fc-section-wrapper fade-in-up">
+      <div class="fc-box">
+        <div class="fc-header">
+          <div class="fc-title-group">
+            <h2 data-i18n="fc-title">
+              Fact Check Core
+              <span class="ai-badge"><i data-lucide="sparkles" size="12"></i> AI Powered</span>
+            </h2>
+            <p data-i18n="fc-sub" class="fc-subtitle">Instantly verify claims regarding One Nation One Election policies.</p>
+          </div>
+          <div class="fc-status">
+            <div class="status-dot"></div>
+            <span data-i18n="sys-ready" id="fc-status-text">System Ready</span>
+          </div>
+        </div>
+
+        <div class="fc-interface">
+          <div class="fc-input-area">
+            <textarea id="claim-input" class="fc-textarea" data-i18n-placeholder="fc-placeholder" placeholder="Enter a claim to verify (e.g., 'Does this violate the federal structure?')..."></textarea>
+            
+            <div class="quick-prompts">
+                Suggestion: <span class="prompt-chip" onclick="setClaim('How will One Nation One Election impact Delhi\'s development projects?')">Impact on Delhi?</span>
+            </div>
+            
+            <div id="fc-result-box" style="display:none; margin-top:15px; padding:15px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; color:#14532d;">
+                <strong>Verification Result:</strong>
+                <p id="fc-result-text" style="margin-top:5px; white-space: pre-wrap; font-size: 0.95rem;"></p>
+            </div>
+          </div>
+          
+          <div class="fc-controls">
+            <div class="control-group">
+              <label data-i18n="lbl-category">Select Category</label>
+              <div class="fc-select-wrapper">
+                <select class="fc-select" id="fact-category-select">
+                  <option value="" disabled selected>-- Choose Category --</option>
+                  <option value="Delhi MCD & Local Bodies">Delhi MCD & Local Bodies</option>
+                  <option value="Voting Rights & Process">Voting Rights & Process</option>
+                  <option value="Constitutional Amendment">Constitutional Amendment</option>
+                  <option value="Federal Structure">Federal Structure</option>
+                  <option value="Logistics & Security">Logistics & Security</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-verify-trigger" class="fc-btn-verify" data-i18n="btn-verify-claim">
+              Verify Claim Now <i data-lucide="arrow-right" size="18"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="video-auth" class="fc-section-wrapper fade-in-up">
+      <div class="fc-box">
+        <div class="fc-header">
+          <div class="fc-title-group">
+            <h2 data-i18n="vc-title">
+              Video Claim Verifier
+              <span class="ai-badge video-badge"><i data-lucide="mic" size="12"></i> Speech Analysis</span>
+            </h2>
+            <p data-i18n="vc-sub" class="fc-subtitle">Paste a YouTube URL to transcribe and fact-check the spoken content against verified records.</p>
+          </div>
+          <div class="fc-status">
+            <div class="status-dot"></div>
+            <span data-i18n="sys-listen">Listener Ready</span>
+          </div>
+        </div>
+
+        <div class="fc-interface">
+          <div class="fc-input-area">
+             <div style="position:relative;">
+                <input type="text" id="video-url-input" class="fc-input" data-i18n-placeholder="vc-placeholder" placeholder="Paste YouTube Video URL here..." />
+                <i data-lucide="link" size="18" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); color:#a8a29e;"></i>
+             </div>
+             <div class="visual-placeholder" id="video-result-area">
+               <i data-lucide="file-audio" size="40" style="margin-bottom:10px; opacity:0.5;"></i>
+               <span style="font-size:0.9rem;" data-i18n="vc-visual">Video transcript will be analyzed here</span>
+             </div>
+          </div>
+
+          <div class="fc-controls">
+            <div class="control-group">
+              <label data-i18n="lbl-mode">Verification Mode</label>
+              <div class="fc-select-wrapper">
+                <select class="fc-select" id="video-mode-select">
+                  <option value="" disabled selected>-- Choose Analysis --</option>
+                  <option value="Factual Accuracy Check">Factual Accuracy Check</option>
+                  <option value="Misleading Context Detection">Misleading Context Detection</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-verify-video" class="fc-btn-verify video-btn" data-i18n="btn-verify-video">
+              Verify Claims <i data-lucide="check-circle" size="18"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="news-auth" class="fc-section-wrapper fade-in-up">
+      <div class="fc-box">
+        <div class="fc-header">
+          <div class="fc-title-group">
+            <h2 data-i18n="nc-title">
+              News Source Validator
+              <span class="ai-badge news-badge"><i data-lucide="newspaper" size="12"></i> Live Crawler</span>
+            </h2>
+            <p data-i18n="nc-sub" class="fc-subtitle">Cross-reference online news articles against verified government data.</p>
+          </div>
+          <div class="fc-status">
+            <div class="status-dot"></div>
+            <span data-i18n="sys-monitor">Monitoring</span>
+          </div>
+        </div>
+
+        <div class="fc-interface">
+          <div class="fc-input-area">
+             <div style="position:relative;">
+                <input type="text" id="news-url-input" class="fc-input" data-i18n-placeholder="nc-placeholder" placeholder="Paste News Article Link..." />
+                <i data-lucide="globe" size="18" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); color:#a8a29e;"></i>
+             </div>
+             <div class="visual-placeholder" id="news-result-area" style="background: #f0fdf4; border-color: #bbf7d0;">
+               <div style="text-align:center;">
+                  <i data-lucide="shield-alert" size="40" style="margin-bottom:10px; color: #16a34a; opacity:0.8;"></i>
+                  <h4 style="color: #15803d; font-weight:700;" data-i18n="nc-trust">Trust Analysis</h4>
+                  <span style="font-size:0.85rem; color:#166534;" data-i18n="nc-awaiting">Awaiting Article Input...</span>
+               </div>
+             </div>
+          </div>
+
+          <div class="fc-controls">
+            <div class="control-group">
+              <label data-i18n="lbl-filter">Verification Filter</label>
+              <div class="fc-select-wrapper">
+                <select class="fc-select" id="news-filter-select">
+                  <option value="" disabled selected>-- Select Check Type --</option>
+                  <option value="Factual Accuracy">Factual Accuracy</option>
+                  <option value="Political Bias Detection">Political Bias Detection</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-verify-news" class="fc-btn-verify news-btn" data-i18n="btn-auth-story">
+              Authenticate Story <i data-lucide="check-circle-2" size="18"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section-padding" id="resources" style="background-color: #fffbf7;">
+    <div class="container">
+        <div class="section-title fade-in-up">
+            <h2 data-i18n="res-title" style="color: var(--warm-rust); margin-bottom: 0.5rem;">Resources</h2>
+            <div class="divider"></div>
+            <p data-i18n="res-desc" style="margin-top: 1rem; color: var(--text-muted);">Useful videos and guides to understand election processes, voting, and verification.</p>
+        </div>
+
+        <div class="cards-grid">
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'ZJReQ8ao0SU')">
+                    <img src="https://img.youtube.com/vi/ZJReQ8ao0SU/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-1-title">Know Your EVM</h3>
+                <p class="card-desc" data-i18n="vid-1-desc">An official overview explaining Electronic Voting Machines and how votes are recorded securely.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'h9j8awe2CM0')">
+                    <img src="https://img.youtube.com/vi/h9j8awe2CM0/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-2-title">How Elections Work</h3>
+                <p class="card-desc" data-i18n="vid-2-desc">A short guide walking through voter registration, polling day, and counting procedures.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'AJhnUUPhbzg')">
+                    <img src="https://img.youtube.com/vi/AJhnUUPhbzg/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-3-title">My Vote my Duty</h3>
+                <p class="card-desc" data-i18n="vid-3-desc">Engage in the spirit of democracy with "Chunav ka Garv," a youth-focused voter awareness initiative.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'OxygVK7UEkY')">
+                    <img src="https://img.youtube.com/vi/OxygVK7UEkY/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-4-title">Register in Voters' List</h3>
+                <p class="card-desc" data-i18n="vid-4-desc">This six-step guide will help you understand how to register as a new voter.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'Fdp4CWupb4s')">
+                    <img src="https://img.youtube.com/vi/Fdp4CWupb4s/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-5-title">Corruption Awareness</h3>
+                <p class="card-desc" data-i18n="vid-5-desc">This play highlights how selling and buying votes constitutes corruption.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'NYNZs139w-8')">
+                    <img src="https://img.youtube.com/vi/NYNZs139w-8/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-6-title">Voter Awareness Song</h3>
+                <p class="card-desc" data-i18n="vid-6-desc">This song is crafted to inspire every VOTER to embody the role of a visionary architect.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'xPG7_HDCHw4')">
+                    <img src="https://img.youtube.com/vi/xPG7_HDCHw4/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-7-title">One Nation, One Election</h3>
+                <p class="card-desc" data-i18n="vid-7-desc">A comprehensive step-by-step explanation of the 'One Nation, One Election' initiative.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'rmZpY2uQoBU')">
+                    <img src="https://img.youtube.com/vi/rmZpY2uQoBU/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-8-title">Election Commission</h3>
+                <p class="card-desc" data-i18n="vid-8-desc">Learn about the Election Commission of India, its role, and its functions.</p>
+            </div>
+
+            <div class="glass-card fade-in-up">
+                <div class="video-responsive" onclick="loadVideo(this, 'C2drBghAUSk')">
+                    <img src="https://img.youtube.com/vi/C2drBghAUSk/hqdefault.jpg" alt="Video Thumbnail">
+                    <div class="play-button"></div>
+                </div>
+                <h3 class="card-title" data-i18n="vid-9-title">Know About Democracy</h3>
+                <p class="card-desc" data-i18n="vid-9-desc">A detailed explanation of the democracy we live in and how it functions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+  <div class="container">
+     <div class="footer-bottom">
+        <span>© 2025 One Nation One Election Portal</span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem;">
+            Built for <strong style="color: #e11d48;">Hack4Delhi</strong> 
+            <i data-lucide="map-pin" size="12"></i>
+        </span>
+     </div>
+  </div>
+</footer>
+
+<script>
+  // ==========================================
+  //      1. INITIALIZATION & ICONS
+  // ==========================================
+  
+  // Initialize Lucide Icons on load
+  lucide.createIcons();
+
+  // Scroll Animation Observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in-up').forEach((el) => observer.observe(el));
+
+  // ==========================================
+  //      2. VIDEO LAZY LOAD FUNCTION
+  // ==========================================
+  function loadVideo(wrapper, videoId) {
+      wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  }
+
+  // ==========================================
+  //      3. LANGUAGE TRANSLATION DATA
+  // ==========================================
+  
+  const translations = {
+    'en': {
+      // Header & Nav
+      'gov-india': 'भारत सरकार | GOVERNMENT OF INDIA',
+      'brand-title': 'ONE NATION ONE ELECTION',
+      'official-portal': 'Official Portal',
+      
+      // Hero Section
+      'hero-badge': 'High Level Committee Report 2025',
+      'hero-title': 'Synchronising<br><span class="gradient-text">India\'s Democracy</span>',
+      'hero-desc': 'A historic reform to conduct simultaneous elections for Lok Sabha and State Assemblies. Ensuring stability, saving resources, and focusing on governance.',
+      'btn-fact': '<i data-lucide="sparkles" size="18"></i> Fact Check',
+      'btn-video': '<i data-lucide="mic" size="18" color="#be123c"></i> Video Claims',
+      'btn-news': '<i data-lucide="newspaper" size="18" color="#15803d"></i> News Checker',
+      'btn-pdf': 'View PDF',
+      'source-hlc': 'Source: HLC Report (Kovind Panel) & NITI Aayog',
+
+      // Hero Card (Impact)
+      'impact-title': 'Projected Impact',
+      'impact-gdp': 'Real GDP Growth',
+      'val-gdp': '+1.5%',
+      'desc-gdp': 'Estimates suggest a 1.5% boost to GDP by minimizing policy paralysis periods.',
+      'impact-eco': 'Economic Value Add',
+      'val-eco': '₹4.5 Lakh Cr',
+      'impact-voter': 'Voter Turnout',
+      'val-voter': 'High Confidence',
+      'desc-voter': 'Reduces "Voter Fatigue," historically increasing participation in simultaneous cycles.',
+
+      // About Us (Full Text)
+      'about-title': 'About Us',
+      'about-p1': 'Elections to the House of the People and Legislative Assemblies of States were mostly held simultaneously from 1951-52 to 1967 after which this cycle got broken and now, elections are held almost every year and within a year too at different times, which result in massive expenditure by the Government and other stakeholders, diversion of security forces and other electoral officers engaged in such elections from their primary duties for significantly prolonged periods, disruption in developmental work on account of prolonged application of Model Code of Conduct, etc.',
+      'about-p2': 'The Law Commission of India in its 170th Report on Reforms of the Electoral Laws observed that: “This cycle of elections every year, and in the out of season, should be put an end to. We must go back to the situation where the elections to Lok Sabha and all the Legislative Assemblies are held at once. It is true that we cannot conceive or provide for all the situations and eventualities that may arise whether on account of the use of Article 356 (which of course has come down substantially after the decision of Supreme Court in S.R. Bommai vs Union of India) or for other reasons, yet the holding of a separate election to a Legislative Assembly should be an exception and not the rule. The rule ought to be ‘one election once in five years for Lok Sabha and all the Legislative Assemblies.',
+      'about-p3': 'The Department-related Parliamentary Standing Committee on Personnel, Public Grievances, Law and Justice in its 79th Report on ‘Feasibility of Holding Simultaneous Election to the House of People (Lok Sabha) and State Legislative Assemblies’ submitted in December, 2015 has also examined the matter and recommended an alternative and practical method of holding simultaneous elections in two phases.',
+
+      // Fact Check Section
+      'fc-title': 'Fact Check Core <span class="ai-badge"><i data-lucide="sparkles" size="12"></i> AI Powered</span>',
+      'fc-sub': 'Instantly verify claims regarding One Nation One Election policies.',
+      'sys-ready': 'System Ready',
+      'lbl-category': 'Select Category',
+      'btn-verify-claim': 'Verify Claim Now <i data-lucide="arrow-right" size="18"></i>',
+      
+      // Video Section
+      'vc-title': 'Video Claim Verifier <span class="ai-badge video-badge"><i data-lucide="mic" size="12"></i> Speech Analysis</span>',
+      'vc-sub': 'Paste a YouTube URL to transcribe and fact-check the spoken content against verified records.',
+      'sys-listen': 'Listener Ready',
+      'vc-visual': 'Video transcript will be analyzed here',
+      'lbl-mode': 'Verification Mode',
+      'btn-verify-video': 'Verify Claims <i data-lucide="check-circle" size="18"></i>',
+
+      // News Section
+      'nc-title': 'News Source Validator <span class="ai-badge news-badge"><i data-lucide="newspaper" size="12"></i> Live Crawler</span>',
+      'nc-sub': 'Cross-reference online news articles against verified government data.',
+      'sys-monitor': 'Monitoring',
+      'nc-trust': 'Trust Analysis',
+      'nc-awaiting': 'Awaiting Article Input...',
+      'lbl-filter': 'Verification Filter',
+      'btn-auth-story': 'Authenticate Story <i data-lucide="check-circle-2" size="18"></i>',
+
+      // Placeholders
+      'fc-placeholder': 'Enter a claim to verify (e.g., "Does this violate the federal structure?")...',
+      'vc-placeholder': 'Paste YouTube Video URL here...',
+      'nc-placeholder': 'Paste News Article Link...',
+
+      // === RESOURCES SECTION ===
+      'res-title': 'Resources',
+      'res-desc': 'Useful videos and guides to understand election processes, voting, and verification.',
+      'vid-1-title': 'Know Your EVM',
+      'vid-1-desc': 'An official overview explaining Electronic Voting Machines and how votes are recorded securely.',
+      'vid-2-title': 'How Elections Work',
+      'vid-2-desc': 'A short guide walking through voter registration, polling day, and counting procedures.',
+      'vid-3-title': 'My Vote my Duty',
+      'vid-3-desc': 'Engage in the spirit of democracy with "Chunav ka Garv," a youth-focused voter awareness initiative.',
+      'vid-4-title': "Register in Voters' List",
+      'vid-4-desc': "This six-step guide will help you understand how to register as a new voter.",
+      'vid-5-title': 'Corruption Awareness',
+      'vid-5-desc': 'This play highlights how selling and buying votes constitutes corruption.',
+      'vid-6-title': 'Voter Awareness Song',
+      'vid-6-desc': 'This song is crafted to inspire every VOTER to embody the role of a visionary architect.',
+      'vid-7-title': 'One Nation, One Election',
+      'vid-7-desc': "A comprehensive step-by-step explanation of the 'One Nation, One Election' initiative.",
+      'vid-8-title': 'Election Commission',
+      'vid-8-desc': 'Learn about the Election Commission of India, its role, and its functions.',
+      'vid-9-title': 'Know About Democracy',
+      'vid-9-desc': 'A detailed explanation of the democracy we live in and how it functions.'
+    },
+
+    'hi': {
+      // Header & Nav
+      'gov-india': 'भारत सरकार | GOVERNMENT OF INDIA',
+      'brand-title': 'एक देश एक चुनाव',
+      'official-portal': 'आधिकारिक पोर्टल',
+
+      // Hero Section
+      'hero-badge': 'उच्च स्तरीय समिति रिपोर्ट 2025',
+      'hero-title': 'भारतीय लोकतंत्र का <br><span class="gradient-text">एकीकरण (Synchronisation)</span>',
+      'hero-desc': 'लोकसभा और राज्य विधानसभाओं के लिए एक साथ चुनाव कराने का ऐतिहासिक सुधार। स्थिरता सुनिश्चित करना, संसाधनों की बचत और सुशासन पर ध्यान केंद्रित करना।',
+      'btn-fact': '<i data-lucide="sparkles" size="18"></i> तथ्य जाँच',
+      'btn-video': '<i data-lucide="mic" size="18" color="#be123c"></i> वीडियो दावे',
+      'btn-news': '<i data-lucide="newspaper" size="18" color="#15803d"></i> समाचार जाँच',
+      'btn-pdf': 'पीडीएफ देखें',
+      'source-hlc': 'स्रोत: एचएलसी रिपोर्ट (कोविंद पैनल) और नीति आयोग',
+
+      // Hero Card
+      'impact-title': 'अनुमानित प्रभाव',
+      'impact-gdp': 'वास्तविक जीडीपी वृद्धि',
+      'val-gdp': '+1.5%',
+      'desc-gdp': 'नीतिगत पक्षाघात (Policy Paralysis) की अवधि को कम करके जीडीपी में 1.5% की वृद्धि का अनुमान।',
+      'impact-eco': 'आर्थिक मूल्य संवर्धन',
+      'val-eco': '₹4.5 लाख करोड़',
+      'impact-voter': 'मतदान प्रतिशत',
+      'val-voter': 'उच्च विश्वास',
+      'desc-voter': '"मतदाता थकान" को कम करता है, ऐतिहासिक रूप से एक साथ होने वाले चुनावों में भागीदारी बढ़ती है।',
+
+      // About Us (FULL HINDI TRANSLATION)
+      'about-title': 'हमारे बारे में',
+      'about-p1': '1951-52 से 1967 तक लोकसभा और राज्यों की विधानसभाओं के चुनाव मुख्य रूप से एक साथ आयोजित किए गए थे, जिसके बाद यह चक्र टूट गया और अब, लगभग हर साल और एक साल के भीतर भी अलग-अलग समय पर चुनाव होते हैं। इसके परिणामस्वरूप सरकार और अन्य हितधारकों द्वारा भारी व्यय होता है, सुरक्षा बलों और अन्य चुनावी अधिकारियों को लंबे समय तक उनके प्राथमिक कर्तव्यों से हटाया जाता है, और आदर्श आचार संहिता के लंबे समय तक लागू रहने के कारण विकासात्मक कार्यों में बाधा आती है।',
+      'about-p2': 'भारत के विधि आयोग ने चुनाव कानूनों में सुधार पर अपनी 170वीं रिपोर्ट में कहा कि: \'हर साल और बेमौसम चुनावों के इस चक्र को समाप्त किया जाना चाहिए। हमें उस स्थिति में वापस जाना चाहिए जहां लोकसभा और सभी विधानसभाओं के चुनाव एक साथ होते हैं। यह सच है कि हम उन सभी स्थितियों और संभावनाओं की कल्पना या प्रावधान नहीं कर सकते जो अनुच्छेद 356 के उपयोग (जो एस.आर. बोम्मई बनाम भारत संघ में सुप्रीम कोर्ट के फैसले के बाद काफी कम हो गया है) या अन्य कारणों से उत्पन्न हो सकती हैं, फिर भी विधानसभा के लिए अलग चुनाव कराना एक अपवाद होना चाहिए, नियम नहीं। नियम यह होना चाहिए कि लोकसभा और सभी विधानसभाओं के लिए पांच साल में एक बार चुनाव हों।\'',
+      'about-p3': 'कार्मिक, लोक शिकायत, कानून और न्याय पर विभाग से संबंधित संसदीय स्थायी समिति ने दिसंबर, 2015 में प्रस्तुत अपनी 79वीं रिपोर्ट \'लोकसभा और राज्य विधानसभाओं के लिए एक साथ चुनाव कराने की व्यवहार्यता\' में भी इस मामले की जांच की है और दो चरणों में एक साथ चुनाव कराने का एक वैकल्पिक और व्यावहारिक तरीका सुझाया है।',
+
+      // Fact Check
+      'fc-title': 'तथ्य जाँच केंद्र <span class="ai-badge"><i data-lucide="sparkles" size="12"></i> AI पावर्ड</span>',
+      'fc-sub': 'वन नेशन वन इलेक्शन नीतियों के बारे में दावों की तुरंत पुष्टि करें।',
+      'sys-ready': 'सिस्टम तैयार',
+      'lbl-category': 'श्रेणी चुनें',
+      'btn-verify-claim': 'दावे की पुष्टि करें <i data-lucide="arrow-right" size="18"></i>',
+
+      // Video Section
+      'vc-title': 'वीडियो दावा सत्यापनकर्ता <span class="ai-badge video-badge"><i data-lucide="mic" size="12"></i> स्पीच एनालिसिस</span>',
+      'vc-sub': 'बोली गई सामग्री को ट्रांसक्राइब और फैक्ट-चेक करने के लिए YouTube URL पेस्ट करें।',
+      'sys-listen': 'श्रोता तैयार',
+      'vc-visual': 'वीडियो ट्रांसक्रिप्ट का विश्लेषण यहाँ किया जाएगा',
+      'lbl-mode': 'सत्यापन मोड',
+      'btn-verify-video': 'दावों की पुष्टि करें <i data-lucide="check-circle" size="18"></i>',
+
+      // News Section
+      'nc-title': 'समाचार स्रोत सत्यापनकर्ता <span class="ai-badge news-badge"><i data-lucide="newspaper" size="12"></i> लाइव क्रॉलर</span>',
+      'nc-sub': 'सत्यापित सरकारी डेटा के खिलाफ ऑनलाइन समाचार लेखों की क्रॉस-रेफरेंसिंग करें।',
+      'sys-monitor': 'निगरानी जारी',
+      'nc-trust': 'विश्वास विश्लेषण',
+      'nc-awaiting': 'लेख इनपुट की प्रतीक्षा है...',
+      'lbl-filter': 'सत्यापन फ़िल्टर',
+      'btn-auth-story': 'कहानी प्रमाणित करें <i data-lucide="check-circle-2" size="18"></i>',
+
+      // Placeholders
+      'fc-placeholder': 'सत्यापन के लिए एक दावा दर्ज करें (जैसे, "क्या यह संघीय ढांचे का उल्लंघन करता है?")...',
+      'vc-placeholder': 'YouTube वीडियो URL यहाँ पेस्ट करें...',
+      'nc-placeholder': 'समाचार लेख लिंक यहाँ पेस्ट करें...',
+
+      // === RESOURCES SECTION ===
+      'res-title': 'संसाधन',
+      'res-desc': 'चुनाव प्रक्रियाओं, मतदान और सत्यापन को समझने के लिए उपयोगी वीडियो और गाइड।',
+      'vid-1-title': 'अपने EVM को जानें',
+      'vid-1-desc': 'इलेक्ट्रॉनिक वोटिंग मशीनें कैसे काम करती हैं, इसकी आधिकारिक जानकारी।',
+      'vid-2-title': 'चुनाव कैसे काम करते हैं',
+      'vid-2-desc': 'मतदाता पंजीकरण, मतदान दिवस और मतगणना प्रक्रियाओं के लिए एक संक्षिप्त गाइड।',
+      'vid-3-title': 'मेरा वोट मेरा कर्तव्य',
+      'vid-3-desc': 'भारत के चुनाव आयोग द्वारा युवाओं पर केंद्रित "चुनाव का गर्व" पहल।',
+      'vid-4-title': 'मतदाता सूची में पंजीकरण',
+      'vid-4-desc': 'यह छह-चरणीय मार्गदर्शिका आपको नए मतदाता के रूप में पंजीकरण करने में मदद करेगी।',
+      'vid-5-title': 'भ्रष्टाचार जागरूकता',
+      'vid-5-desc': 'यह नाटक दर्शाता है कि वोट बेचना और खरीदना कैसे भ्रष्टाचार है।',
+      'vid-6-title': 'मतदाता जागरूकता गीत',
+      'vid-6-desc': 'यह गीत हर मतदाता को आधुनिक भारत के निर्माता की भूमिका निभाने के लिए प्रेरित करता है।',
+      'vid-7-title': 'एक देश, एक चुनाव',
+      'vid-7-desc': "'एक देश, एक चुनाव' पहल का व्यापक चरण-दर-चरण विवरण।",
+      'vid-8-title': 'चुनाव आयोग',
+      'vid-8-desc': 'भारत निर्वाचन आयोग, इसकी भूमिका और कार्यों के बारे में जानें।',
+      'vid-9-title': 'लोकतंत्र के बारे में जानें',
+      'vid-9-desc': 'हम जिस लोकतंत्र में रहते हैं और यह कैसे काम करता है, उसका विस्तृत विवरण।'
+    }
+  };
+
+
+  // ==========================================
+  //      4. LANGUAGE SWITCHING LOGIC
+  // ==========================================
+
+  // Toggle Dropdown Menu
+  const langBtn = document.getElementById('lang-toggle-btn');
+  const langMenu = document.getElementById('lang-dropdown-menu');
+  
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langMenu.classList.toggle('show');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!langBtn.contains(e.target) && !langMenu.contains(e.target)) {
+      langMenu.classList.remove('show');
+    }
+  });
+
+  // Main Change Language Function
+  function changeLanguage(lang) {
+    const data = translations[lang];
+    if (!data) return;
+
+    // 1. Update Text & HTML Content
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (data[key]) {
+        element.innerHTML = data[key];
+      }
+    });
+
+    // 2. Update Placeholders (Inputs/Textareas)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+      const key = element.getAttribute('data-i18n-placeholder');
+      if (data[key]) {
+        element.placeholder = data[key];
+      }
+    });
+
+    // 3. Handle Fonts and Styling
+    if (lang === 'hi') {
+      document.body.classList.add('hindi-mode');
+      langBtn.innerHTML = 'भाषा: हिन्दी <i data-lucide="chevron-down" size="14"></i>';
+    } else {
+      document.body.classList.remove('hindi-mode');
+      langBtn.innerHTML = 'Language: English <i data-lucide="chevron-down" size="14"></i>';
+    }
+
+    // 4. Re-initialize Icons (Important because innerHTML replacement kills icons)
+    lucide.createIcons();
+
+    // 5. Close Dropdown
+    langMenu.classList.remove('show');
+  }
+
+
+  // ==========================================
+  //      5. BACKEND API LOGIC
+  // ==========================================
+
+  // --- HELPER TO FILL CLAIM ---
+  function setClaim(text) {
+    document.getElementById('claim-input').value = text;
+    // Highlight the box briefly
+    const box = document.getElementById('claim-input');
+    box.style.borderColor = '#9c4221';
+    setTimeout(() => { box.style.borderColor = '#e7e5e4'; }, 500);
+  }
+
+  const API_BASE = 'http://127.0.0.1:5000/api';
+
+  // Helper to handle API calls
+  async function handleVerification(endpoint, inputId, buttonId, resultAreaId, loadingText, extraData = {}) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(buttonId);
+      const resultArea = document.getElementById(resultAreaId);
+      
+      // Save original icon HTML to restore later
+      const originalBtnContent = btn.innerHTML; 
+      const query = input.value.trim();
+      
+      if (!query) {
+          alert("Please provide a valid input.");
+          return;
+      }
+
+      // UI Loading State
+      btn.innerHTML = `${loadingText} <i data-lucide="loader-2" class="spin"></i>`;
+      btn.disabled = true;
+      resultArea.innerHTML = `<div style="text-align:center; padding:20px;">
+                                <i data-lucide="loader-2" class="spin" size="30" style="color:#d97706"></i>
+                                <p style="margin-top:10px; color:#78716c;">Analyzing content... this may take a moment.</p>
+                              </div>`;
+      lucide.createIcons();
+
+      try {
+          const payload = { 
+              [endpoint === 'fact-check' ? 'query' : 'url']: query,
+              ...extraData 
+          };
+
+          const response = await fetch(`${API_BASE}/${endpoint}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+              resultArea.innerHTML = `<div style="color:#ef4444; padding:20px; text-align:center;">
+                                        <i data-lucide="alert-triangle" size="30"></i>
+                                        <p><strong>Error:</strong> ${data.error}</p>
+                                      </div>`;
+          } else {
+              const resultText = data.answer || data.result; 
+              const formattedText = resultText.replace(/\n/g, '<br>');
+
+              resultArea.innerHTML = `<div style="padding:20px; text-align:left; width:100%; overflow-y:auto; max-height:300px;">
+                                        <h4 style="color:#15803d; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                                            <i data-lucide="check-circle-2" size="20"></i> Analysis Complete
+                                        </h4>
+                                        <div style="background:#fff; padding:15px; border-radius:8px; border:1px solid #e7e5e4; font-size:0.95rem; line-height:1.6; color:#44403c;">
+                                            ${formattedText}
+                                        </div>
+                                      </div>`;
+          }
+      } catch (err) {
+          console.error(err);
+          resultArea.innerHTML = `<div style="color:#ef4444; padding:20px;">Could not connect to server.</div>`;
+      } finally {
+          // Restore button using original content (preserves language text)
+          btn.innerHTML = originalBtnContent; 
+          btn.disabled = false;
+          lucide.createIcons();
+      }
+  }
+
+  // 1. Text Fact Check
+  const btnFact = document.getElementById('btn-verify-trigger');
+  if(btnFact) {
+      btnFact.addEventListener('click', () => {
+          const input = document.getElementById('claim-input');
+          const categorySelect = document.getElementById('fact-category-select');
+          
+          if (!categorySelect.value || categorySelect.value === "") {
+             alert("⚠️ Please select a Category from the dropdown before verifying.");
+             categorySelect.focus();
+             return;
+          }
+
+          const resultBox = document.getElementById('fc-result-box');
+          const resultText = document.getElementById('fc-result-text');
+          
+          if(!input.value.trim()) return alert("Enter a claim.");
+          
+          // Store original text to handle language switching persistence
+          const originalText = btnFact.innerHTML;
+
+          btnFact.innerHTML = 'Verifying... <i data-lucide="loader-2" class="spin"></i>';
+          lucide.createIcons();
+          
+          fetch(`${API_BASE}/fact-check`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                  query: input.value,
+                  category: categorySelect.value 
+              })
+          })
+          .then(res => res.json())
+          .then(data => {
+              if(data.answer) {
+                  resultBox.style.display = 'block';
+                  resultText.innerText = data.answer;
+              } else {
+                  alert("Error: " + data.error);
+              }
+          })
+          .catch(e => {
+            alert("Connection Error. Is the server running?");
+          })
+          .finally(() => {
+              btnFact.innerHTML = originalText;
+              lucide.createIcons();
+          });
+      });
+  }
+
+  // 2. Video Verification
+  const btnVideo = document.getElementById('btn-verify-video');
+  if (btnVideo) {
+      btnVideo.addEventListener('click', () => {
+          const modeSelect = document.getElementById('video-mode-select');
+          if (!modeSelect.value || modeSelect.value === "") {
+             alert("⚠️ Please select a Verification Mode.");
+             modeSelect.focus();
+             return;
+          }
+          handleVerification('verify-video', 'video-url-input', 'btn-verify-video', 'video-result-area', 'Scanning Video...', { mode: modeSelect.value });
+      });
+  }
+
+  // 3. News Verification
+  const btnNews = document.getElementById('btn-verify-news');
+  if (btnNews) {
+      btnNews.addEventListener('click', () => {
+          const filterSelect = document.getElementById('news-filter-select');
+          if (!filterSelect.value || filterSelect.value === "") {
+              alert("⚠️ Please select a Verification Filter.");
+              filterSelect.focus();
+              return; 
+          }
+          handleVerification('verify-news', 'news-url-input', 'btn-verify-news', 'news-result-area', 'Validating Source...', { filter_type: filterSelect.value });
+      });
+  }
+</script>
+</body>
+</html>
