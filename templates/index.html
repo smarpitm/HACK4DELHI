@@ -17,9 +17,9 @@
     /* ================= THEME VARIABLES ================= */
     :root {
       /* WARM THEME PALETTE */
-      --gov-blue: #003060;     
+      --gov-blue: #003060;      
       --gov-saffron: #FF9933; 
-      --gov-green: #138808;   
+      --gov-green: #138808;    
       
       /* New Warm Variables */
       --warm-rust: #9c4221;
@@ -1457,7 +1457,9 @@
     setTimeout(() => { box.style.borderColor = '#e7e5e4'; }, 500);
   }
 
-  const API_BASE = 'http://127.0.0.1:5000/api';
+  // --- !!! CRITICAL FIX FOR DEPLOYMENT !!! ---
+  // Using a relative path allows it to work on BOTH localhost and Render automatically.
+  const API_BASE = '/api';
 
   // Helper to handle API calls
   async function handleVerification(endpoint, inputId, buttonId, resultAreaId, loadingText, extraData = {}) {
