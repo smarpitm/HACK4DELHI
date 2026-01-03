@@ -86,7 +86,7 @@ def verify_news():
         
     lang = newschecker.detect_language_of_text(content)
     if lang and lang.startswith('hi'):
-         content = newschecker.translate_hi_to_en(content)
+        content = newschecker.translate_hi_to_en(content)
             
      claims = newschecker.extract_claims(content)
 
