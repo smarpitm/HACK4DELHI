@@ -5,6 +5,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 import os
 
+# --- 1. INITIALIZE FLASK APP (DO THIS ONLY ONCE) ---
 app = Flask(__name__)
 
 from dataprep import VectorStoreManager, EmbeddingManager
@@ -88,14 +89,16 @@ def verify_news():
         content = newschecker.translate_hi_to_en(content)
             
         claims = newschecker.extract_claims(content)
+        if not claims:
+            return jsonify({"result": "No verifiable claims found."})
 
         top_claims = claims[:5] 
-    results = newschecker.verify_claims(
-        top_claims, 
-        retriever=rag_retriever, 
-        llm=llm_engine,
-        mode=filter_mode 
-     )
+        results = newschecker.verify_claims(
+            top_claims, 
+            retriever=rag_retriever, 
+            llm=llm_engine,
+            mode=filter_mode 
+        )
         
     summary = newschecker.summarize_verification(results)
     return jsonify({"result": summary})
