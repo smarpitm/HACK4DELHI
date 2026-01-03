@@ -78,26 +78,28 @@ def verify_news():
     
 
     print(f"\n📰 [News Check] Mode: {filter_mode} | URL: {news_url}")
+    
 
-    try:
-        content = newschecker.extract_news_content(news_url)
+    
+       
+    content = newschecker.extract_news_content(news_url)
         
-        lang = newschecker.detect_language_of_text(content)
-        if lang and lang.startswith('hi'):
-            content = newschecker.translate_hi_to_en(content)
+    lang = newschecker.detect_language_of_text(content)
+    if lang and lang.startswith('hi'):
+         content = newschecker.translate_hi_to_en(content)
             
-        claims = newschecker.extract_claims(content)
+     claims = newschecker.extract_claims(content)
 
-        top_claims = claims[:5] 
-        results = newschecker.verify_claims(
-            top_claims, 
-            retriever=rag_retriever, 
-            llm=llm_engine,
-            mode=filter_mode 
-        )
+     top_claims = claims[:5] 
+    results = newschecker.verify_claims(
+        top_claims, 
+        retriever=rag_retriever, 
+        llm=llm_engine,
+        mode=filter_mode 
+     )
         
-        summary = newschecker.summarize_verification(results)
-        return jsonify({"result": summary})
+    summary = newschecker.summarize_verification(results)
+    return jsonify({"result": summary})
 
 
 if __name__ == '__main__':
