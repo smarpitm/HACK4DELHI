@@ -14,11 +14,11 @@ from dataprep import VectorStoreManager, EmbeddingManager
 logging.basicConfig(level=logging.ERROR) 
 
 if load_dotenv(find_dotenv()):
-    print("✅ Loaded environment variables from .env")
+    print("Loaded environment variables from .env")
 elif load_dotenv("1.env"):
-    print("✅ Loaded environment variables from 1.env")
+    print(" Loaded environment variables from 1.env")
 else:
-    print("⚠️  Warning: Could not find .env or 1.env file.")
+    print("  Warning: Could not find .env or 1.env file.")
 
 class RAGRetrieval:
     def __init__(self, vector_store: VectorStoreManager, embedding_manager: EmbeddingManager):
@@ -27,7 +27,7 @@ class RAGRetrieval:
 
     def retrieve(self, query: str, top_k: int = 10) -> List[Dict[str, Any]]:
         try:
-            print(f"🔍 Analyzing top {top_k} document segments...", end="\r")
+            print(f" Analyzing top {top_k} document segments...", end="\r")
             
             query_embedding_np = self.embedding_manager.generate_embeddings([query])[0]
             query_embedding_list = query_embedding_np.tolist()
@@ -49,7 +49,7 @@ class RAGRetrieval:
                     }
                     retrieved_docs.append(doc_data)
             
-            print(f"✅ Analysis complete. Found {len(retrieved_docs)} relevant segments.    ")
+            print(f" Analysis complete. Found {len(retrieved_docs)} relevant segments.    ")
             return retrieved_docs
 
         except Exception as e:
@@ -68,6 +68,8 @@ class RAGGenerator:
             streaming=True
         )
         # We no longer build a static prompt here; we build it dynamically in generate_stream
+
+
 
     def format_context(self, docs: List[Dict[str, Any]]) -> str:
         if not docs:
@@ -105,7 +107,7 @@ class RAGGenerator:
         try:
             chain = prompt | self.llm | StrOutputParser()
             
-            print("\n🤖 Answer: ", end="", flush=True)
+            print("\n Answer: ", end="", flush=True)
             
             full_response = ""
             for chunk in chain.stream({"formatted_context": context_str, "query": query}):
@@ -125,7 +127,7 @@ class RAGGenerator:
 
 # --- Main Execution ---
 if __name__ == "__main__":
-    print("🚀 Initializing Precision System...")
+    print(" Initializing Precision System...")
     try:
         embedding_manager = EmbeddingManager()
         vector_store = VectorStoreManager(collection_name="pdf_documents", embedding_manager=embedding_manager)
@@ -133,17 +135,17 @@ if __name__ == "__main__":
         api_key = os.getenv("GROQ_API_KEY")
         rag_generator = RAGGenerator(api_key=api_key)
         
-        print("✅ System Ready!\n")
+        print(" System Ready!\n")
 
         while True:
-            user_query = input("\n👉 Question (or 'q' to quit): ")
+            user_query = input("\n Question (or 'q' to quit): ")
             if user_query.lower() in ['q', 'exit']: break
             
-            cat = input("👉 Category (e.g., Federal Structure) [Enter for General]: ") or "General"
+            cat = input(" Category (e.g., Federal Structure) [Enter for General]: ") or "General"
             
             docs = rag_retriever.retrieve(user_query, top_k=10)
             rag_generator.generate_stream(user_query, docs, category=cat)
             print("-" * 50)
 
     except Exception as e:
-        print(f"❌ Pipeline Error: {e}")
+        print(f"Pipeline Error: {e}")
