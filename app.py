@@ -75,34 +75,35 @@ def verify_news():
     data = request.json
     news_url = data.get('url')
     filter_mode = data.get('filter_type', 'Factual Accuracy') 
-    
 
     print(f"\n📰 [News Check] Mode: {filter_mode} | URL: {news_url}")
-    
 
-    
-       
     content = newschecker.extract_news_content(news_url)
         
     lang = newschecker.detect_language_of_text(content)
+    
+    # Only translate if Hindi, otherwise keep content as is
     if lang and lang.startswith('hi'):
         content = newschecker.translate_hi_to_en(content)
             
-        claims = newschecker.extract_claims(content)
-        if not claims:
-            return jsonify({"result": "No verifiable claims found."})
+    # --- INDENTATION FIX BELOW ---
+    # These lines are now aligned with the main function body, 
+    # so they run for EVERY request.
+    
+    claims = newschecker.extract_claims(content)
+    if not claims:
+        return jsonify({"result": "No verifiable claims found."})
 
-        top_claims = claims[:5] 
-        results = newschecker.verify_claims(
-            top_claims, 
-            retriever=rag_retriever, 
-            llm=llm_engine,
-            mode=filter_mode 
-        )
+    top_claims = claims[:5] 
+    results = newschecker.verify_claims(
+        top_claims, 
+        retriever=rag_retriever, 
+        llm=llm_engine,
+        mode=filter_mode 
+    )
         
     summary = newschecker.summarize_verification(results)
     return jsonify({"result": summary})
-
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
